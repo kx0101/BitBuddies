@@ -4,12 +4,16 @@ import java.net.ServerSocket;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class TCPTransport implements Transport {
     private final TCPTransportOptions options;
     private ServerSocket serverSocket;
     private final BlockingQueue<RPC> rpcQueue = new LinkedBlockingQueue<>();
+
+    private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
     public TCPTransport(TCPTransportOptions options) {
         this.options = options;
@@ -18,14 +22,16 @@ public class TCPTransport implements Transport {
     @Override
     public void listenAndAccept() throws Exception {
         serverSocket = new ServerSocket(options.listenPort);
-        new Thread(this::listen).start();
+
+        executor.submit(this::listen);
     }
 
     private void listen() {
         while (true) {
             try {
                 Socket conn = serverSocket.accept();
-                new Thread(() -> handleConnection(conn)).start();
+
+                executor.submit(() -> handleConnection(conn));
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
