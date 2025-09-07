@@ -54,6 +54,36 @@ public class Storage {
     }
 
     /**
+     * Checks if a file exists in the storage
+     */
+    public boolean exists(String key) throws IOException {
+        PathKey pathKey = this.options.pathTransformFunc.apply(key);
+
+        Path parentDir = Paths.get(pathKey.pathName);
+        Path filePath = parentDir.resolve(pathKey.fileName);
+
+        return Files.exists(filePath);
+    }
+
+    /**
+     * Deletes a file from the storage
+     */
+    public void delete(String key) throws IOException {
+        PathKey pathKey = this.options.pathTransformFunc.apply(key);
+
+        Path parentDir = Paths.get(pathKey.pathName);
+        Path filePath = parentDir.resolve(pathKey.fileName);
+
+        Files.delete(filePath);
+
+        Path parent = filePath.getParent();
+        while (parent != null && Files.isDirectory(parent)) {
+            Files.delete(parent);
+            parent = parent.getParent();
+        }
+    }
+
+    /**
      * Returns the full path string for a given PathKey
      */
     public String getFullPath(PathKey pathKey) {
