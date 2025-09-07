@@ -15,15 +15,14 @@ public class Storage {
     }
 
     public void writeStream(String key, InputStream r) throws IOException {
-        String pathName = this.options.pathTransformFunc.apply(key);
+        PathKey pathKey = this.options.pathTransformFunc.apply(key);
 
-        Path parentDir = Paths.get(pathName);
+        Path parentDir = Paths.get(pathKey.pathName);
         if (parentDir != null) {
             Files.createDirectories(parentDir);
         }
 
-        String fileName = "someFilename";
-        Path filePath = parentDir.resolve(fileName);
+        Path filePath = parentDir.resolve(pathKey.original);
 
         try (OutputStream output = Files.newOutputStream(filePath)) {
             byte[] buffer = new byte[1024];
@@ -35,5 +34,9 @@ public class Storage {
                 System.out.printf("written (%d) bytes to disk: %s\n", read, filePath);
             }
         }
+    }
+
+    public String getFilename(PathKey pathKey) {
+        return String.format("%s/%s", pathKey.pathName, pathKey.original);
     }
 }
