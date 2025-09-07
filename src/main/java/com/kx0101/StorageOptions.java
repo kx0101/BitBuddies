@@ -6,7 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class StorageOptions {
-    private final Path baseDir;
+    protected final Path baseDir;
     public Function<String, PathKey> pathTransformFunc;
 
     public StorageOptions(Function<String, PathKey> pathTransformFunc, Path baseDir) {

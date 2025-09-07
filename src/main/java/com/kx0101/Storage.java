@@ -80,6 +80,10 @@ public class Storage {
         while (parent != null && Files.isDirectory(parent)) {
             Files.delete(parent);
             parent = parent.getParent();
+
+            if (parent == this.options.baseDir) {
+                break;
+            }
         }
     }
 
