@@ -14,15 +14,32 @@ public class Storage {
         this.options = options;
     }
 
+    /**
+     * Reads a file stream from storage
+     */
+    public InputStream readStream(String key) throws IOException {
+        PathKey pathKey = this.options.pathTransformFunc.apply(key);
+
+        Path parentDir = Paths.get(pathKey.pathName);
+        Path filePath = parentDir.resolve(pathKey.fileName);
+
+        if (!Files.exists(filePath)) {
+            throw new IOException("file not found: " + filePath);
+        }
+
+        return Files.newInputStream(filePath);
+    }
+
+    /**
+     * Writes the InputStream to storage
+     */
     public void writeStream(String key, InputStream r) throws IOException {
         PathKey pathKey = this.options.pathTransformFunc.apply(key);
 
         Path parentDir = Paths.get(pathKey.pathName);
-        if (parentDir != null) {
-            Files.createDirectories(parentDir);
-        }
+        Files.createDirectories(parentDir);
 
-        Path filePath = parentDir.resolve(pathKey.original);
+        Path filePath = parentDir.resolve(pathKey.fileName);
 
         try (OutputStream output = Files.newOutputStream(filePath)) {
             byte[] buffer = new byte[1024];
@@ -36,7 +53,10 @@ public class Storage {
         }
     }
 
-    public String getFilename(PathKey pathKey) {
-        return String.format("%s/%s", pathKey.pathName, pathKey.original);
+    /**
+     * Returns the full path string for a given PathKey
+     */
+    public String getFullPath(PathKey pathKey) {
+        return Paths.get(pathKey.pathName, pathKey.fileName).toString();
     }
 }

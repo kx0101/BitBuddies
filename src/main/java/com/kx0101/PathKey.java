@@ -2,10 +2,10 @@ package com.kx0101;
 
 public class PathKey {
     public String pathName;
-    public String original;
+    public String fileName;
 
-    public PathKey(String pathName, String original) {
+    public PathKey(String pathName, String fileName) {
         this.pathName = pathName;
-        this.original = original;
+        this.fileName = fileName;
     }
 }

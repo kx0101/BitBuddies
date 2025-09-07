@@ -62,6 +62,6 @@ class StorageTest {
         // Act
         PathKey hashed = options.pathTransformFunc.apply(key);
         String expectedHashed = "2c70e12b7a0646f92279f427c7b38e7334d8e5389cff167a1dc30e73f826b683";
-        assertEquals(hashed.original, expectedHashed);
+        assertEquals(hashed.fileName, expectedHashed);
     }
 }
