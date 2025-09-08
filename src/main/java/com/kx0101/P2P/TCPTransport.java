@@ -27,22 +27,47 @@ public class TCPTransport implements Transport {
         executor.submit(this::listen);
     }
 
+    @Override
+    public void Dial(String addr) {
+        String[] parts = addr.split(":");
+        String host = parts[0];
+        int port = Integer.parseInt(parts[1]);
+
+        try {
+            Socket socket = new Socket(host, port);
+
+            this.handleConnection(socket, true);
+        } catch (Exception ex) {
+            System.out.println("Error dialing " + addr + ": " + ex.getMessage());
+        }
+    }
+
+    @Override
+    public BlockingQueue<RPC> consume() {
+        return rpcQueue;
+    }
+
+    @Override
+    public void close() throws IOException {
+        serverSocket.close();
+    }
+
     private void listen() {
         while (true) {
             try {
                 Socket conn = serverSocket.accept();
 
-                executor.submit(() -> handleConnection(conn));
+                executor.submit(() -> handleConnection(conn, false));
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
     }
 
-    private void handleConnection(Socket conn) {
+    private void handleConnection(Socket conn, boolean outbound) {
         try {
-            TCPPeer peer = new TCPPeer(conn, true);
-            System.out.println("New incoming connection: " + conn.getRemoteSocketAddress());
+            TCPPeer peer = new TCPPeer(conn, outbound);
+            System.out.println("Dialed and connected to " + conn.getRemoteSocketAddress());
 
             if (options.handshake != null) {
                 options.handshake.accept(peer);
@@ -69,15 +94,5 @@ public class TCPTransport implements Transport {
             } catch (Exception ignored) {
             }
         }
-    }
-
-    @Override
-    public BlockingQueue<RPC> consume() {
-        return rpcQueue;
-    }
-
-    @Override
-    public void close() throws IOException {
-        serverSocket.close();
     }
 }

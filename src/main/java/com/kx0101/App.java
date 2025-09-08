@@ -1,5 +1,7 @@
 package com.kx0101;
 
+import java.util.List;
+
 import com.kx0101.P2P.DefaultDecoder;
 import com.kx0101.P2P.TCPPeer;
 import com.kx0101.P2P.TCPTransport;
@@ -17,7 +19,8 @@ public class App {
 
         TCPTransport tcpTransport = new TCPTransport(tcpOptions);
 
-        ServerOptions options = new ServerOptions(":3000", "3000_network", tcpTransport);
+        List<String> bootstrapNodes = List.of(":4000");
+        ServerOptions options = new ServerOptions(":3000", "3000_network", tcpTransport, bootstrapNodes);
         Server fileServer = new Server(options);
 
         try {

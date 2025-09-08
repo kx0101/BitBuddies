@@ -17,9 +17,17 @@ public class Server {
         System.out.println("Server starting on " + options.listenAddr);
         this.options.transport.listenAndAccept();
 
+        this.bootstrapNetwork();
+
         while (true) {
             RPC rpc = this.options.transport.consume().take();
             System.out.printf("%s: %s%n", rpc.from, new String(rpc.data));
+        }
+    }
+
+    public void bootstrapNetwork() {
+        for (String addr : this.options.bootstrapNodes) {
+            this.options.transport.Dial(addr);
         }
     }
 }

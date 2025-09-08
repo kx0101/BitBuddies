@@ -9,4 +9,6 @@ public interface Transport {
     BlockingQueue<RPC> consume();
 
     void close() throws IOException;
+
+    void Dial(String addr);
 }
