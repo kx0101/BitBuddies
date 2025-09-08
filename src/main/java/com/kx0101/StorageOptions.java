@@ -6,17 +6,21 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class StorageOptions {
-    protected final Path baseDir;
     public Function<String, PathKey> pathTransformFunc;
 
-    public StorageOptions(Function<String, PathKey> pathTransformFunc, Path baseDir) {
+    protected final Path baseDir;
+    protected String root = "liakosnetwork";
+
+    public StorageOptions(Function<String, PathKey> pathTransformFunc, Path baseDir, String root) {
         this.baseDir = baseDir;
         this.pathTransformFunc = pathTransformFunc;
+        this.root = root;
     }
 
-    public StorageOptions(Path baseDir) {
+    public StorageOptions(Path baseDir, String root) {
         this.baseDir = baseDir;
         this.pathTransformFunc = this::hashPathTransformFunc;
+        this.root = root;
     }
 
     public PathKey hashPathTransformFunc(String key) {
@@ -28,6 +32,7 @@ public class StorageOptions {
 
         int blockSize = 5;
         StringBuilder pathBuilder = new StringBuilder();
+        pathBuilder.append(this.root).append("/");
 
         for (int i = 0; i < hashed.length(); i += blockSize) {
             int end = Math.min(i + blockSize, hashed.length());
@@ -38,8 +43,8 @@ public class StorageOptions {
             }
         }
 
-        Path fullPath = baseDir.resolve(pathBuilder.toString());
-        return new PathKey(fullPath.toString(), hashed);
+        Path dirPath = baseDir.resolve(pathBuilder.toString());
+        return new PathKey(dirPath.toString(), hashed);
     }
 
     private String hash(String input) {

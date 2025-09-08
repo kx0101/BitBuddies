@@ -8,9 +8,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StorageTest {
     private Path tempDir;
+    private String rootDir;
 
     @BeforeEach
     void setup() throws IOException {
+        rootDir = "liakosnetwork";
         tempDir = Paths.get("storage-test");
         Files.createDirectory(tempDir);
     }
@@ -35,12 +37,13 @@ class StorageTest {
     @Test
     void testWriteStreamCreatesFileAndWritesData() throws IOException {
         // Arrange
-        StorageOptions options = new StorageOptions(tempDir);
+        StorageOptions options = new StorageOptions(tempDir, rootDir);
         Storage storage = new Storage(options);
 
         String key = "key";
         String expectedHashedKey = "2c70e12b7a0646f92279f427c7b38e7334d8e5389cff167a1dc30e73f826b683";
-        String expectedHashedDir = "2c70e/12b7a/0646f/92279/f427c/7b38e/7334d/8e538/9cff1/67a1d/c30e7/3f826/b683";
+        String expectedHashedDir = this.rootDir
+                + "/2c70e/12b7a/0646f/92279/f427c/7b38e/7334d/8e538/9cff1/67a1d/c30e7/3f826/b683";
 
         byte[] data = "pame ligo re magkes".getBytes();
         InputStream in = new ByteArrayInputStream(data);
@@ -65,7 +68,7 @@ class StorageTest {
     @Test
     void testReadStream() throws IOException {
         // Arrange
-        StorageOptions options = new StorageOptions(tempDir);
+        StorageOptions options = new StorageOptions(tempDir, rootDir);
         Storage storage = new Storage(options);
 
         String key = "key";
@@ -87,12 +90,13 @@ class StorageTest {
     @Test
     void testDeleteFile() throws IOException {
         // Arrange
-        StorageOptions options = new StorageOptions(tempDir);
+        StorageOptions options = new StorageOptions(tempDir, rootDir);
         Storage storage = new Storage(options);
 
         String key = "key";
         String expectedHashedKey = "2c70e12b7a0646f92279f427c7b38e7334d8e5389cff167a1dc30e73f826b683";
-        String expectedHashedDir = "2c70e/12b7a/0646f/92279/f427c/7b38e/7334d/8e538/9cff1/67a1d/c30e7/3f826/b683";
+        String expectedHashedDir = this.rootDir
+                + "/2c70e/12b7a/0646f/92279/f427c/7b38e/7334d/8e538/9cff1/67a1d/c30e7/3f826/b683";
 
         byte[] data = "pame ligo re magkes".getBytes();
         InputStream in = new ByteArrayInputStream(data);
@@ -125,7 +129,7 @@ class StorageTest {
     @Test
     void testIfFileExists() throws IOException {
         // Arrange
-        StorageOptions options = new StorageOptions(tempDir);
+        StorageOptions options = new StorageOptions(tempDir, rootDir);
         Storage storage = new Storage(options);
 
         String key = "key";
@@ -143,7 +147,7 @@ class StorageTest {
     @Test
     void testIfFileDoesntExist() throws IOException {
         // Arrange
-        StorageOptions options = new StorageOptions(tempDir);
+        StorageOptions options = new StorageOptions(tempDir, rootDir);
         Storage storage = new Storage(options);
 
         String key = "key";
@@ -158,7 +162,7 @@ class StorageTest {
     @Test
     void testHashPathTransformFunc() {
         // Arrange
-        StorageOptions options = new StorageOptions(tempDir);
+        StorageOptions options = new StorageOptions(tempDir, rootDir);
         options.pathTransformFunc = options::hashPathTransformFunc;
 
         String key = "key";

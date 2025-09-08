@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.DirectoryStream;
 
 public class Storage {
     private final StorageOptions options;
@@ -77,13 +78,10 @@ public class Storage {
         Files.delete(filePath);
 
         Path parent = filePath.getParent();
-        while (parent != null && Files.isDirectory(parent)) {
+
+        while (!parent.equals(this.options.baseDir) && Files.isDirectory(parent) && isDirEmpty(parent)) {
             Files.delete(parent);
             parent = parent.getParent();
-
-            if (parent == this.options.baseDir) {
-                break;
-            }
         }
     }
 
@@ -92,5 +90,11 @@ public class Storage {
      */
     public String getFullPath(PathKey pathKey) {
         return Paths.get(pathKey.pathName, pathKey.fileName).toString();
+    }
+
+    private boolean isDirEmpty(Path dir) throws IOException {
+        try (DirectoryStream<Path> entries = Files.newDirectoryStream(dir)) {
+            return !entries.iterator().hasNext();
+        }
     }
 }
