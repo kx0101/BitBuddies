@@ -167,9 +167,37 @@ class StorageTest {
 
         String key = "key";
 
-        // Act
+        // Act & Assert
         PathKey hashed = options.pathTransformFunc.apply(key);
         String expectedHashed = "2c70e12b7a0646f92279f427c7b38e7334d8e5389cff167a1dc30e73f826b683";
         assertEquals(hashed.fileName, expectedHashed);
+    }
+
+    @Test
+    void testGetFullPath() throws IOException {
+        // Arrange
+        StorageOptions options = new StorageOptions(tempDir, rootDir);
+        options.pathTransformFunc = options::hashPathTransformFunc;
+
+        Storage storage = new Storage(options);
+
+        String key = "key";
+        String expectedHashedKey = "2c70e12b7a0646f92279f427c7b38e7334d8e5389cff167a1dc30e73f826b683";
+        String expectedHashedDir = this.rootDir
+                + "/2c70e/12b7a/0646f/92279/f427c/7b38e/7334d/8e538/9cff1/67a1d/c30e7/3f826/b683";
+
+        byte[] data = "pame ligo re magkes".getBytes();
+        InputStream in = new ByteArrayInputStream(data);
+
+        PathKey pathKey = new PathKey(expectedHashedDir, expectedHashedKey);
+
+        // Act
+        storage.writeStream(key, in);
+        String fullPath = storage.getFullPath(pathKey);
+
+        // Assert
+        assertEquals(fullPath,
+                this.rootDir + "/2c70e/12b7a/0646f/92279/f427c/7b38e/7334d/8e538/9cff1/67a1d/c30e7/3f826/b683/"
+                        + expectedHashedKey);
     }
 }
