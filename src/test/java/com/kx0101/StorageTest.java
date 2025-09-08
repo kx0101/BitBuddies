@@ -49,7 +49,7 @@ class StorageTest {
         InputStream in = new ByteArrayInputStream(data);
 
         // Act
-        storage.writeStream(key, in);
+        storage.write(key, in);
 
         // Assert
         Path expectedDir = tempDir.resolve(expectedHashedDir);
@@ -76,10 +76,10 @@ class StorageTest {
         InputStream in = new ByteArrayInputStream(data);
 
         // Act
-        storage.writeStream(key, in);
+        storage.write(key, in);
 
         // Assert
-        InputStream readStream = storage.readStream(key);
+        InputStream readStream = storage.read(key);
         byte[] readData = readStream.readAllBytes();
 
         readStream.close();
@@ -102,7 +102,7 @@ class StorageTest {
         InputStream in = new ByteArrayInputStream(data);
 
         // Act
-        storage.writeStream(key, in);
+        storage.write(key, in);
 
         Path expectedDir = tempDir.resolve(expectedHashedDir);
         Path expectedFile = expectedDir.resolve(expectedHashedKey);
@@ -137,7 +137,7 @@ class StorageTest {
         InputStream in = new ByteArrayInputStream(data);
 
         // Act
-        storage.writeStream(key, in);
+        storage.write(key, in);
         boolean exists = storage.exists(key);
 
         // Assert
@@ -192,7 +192,7 @@ class StorageTest {
         PathKey pathKey = new PathKey(expectedHashedDir, expectedHashedKey);
 
         // Act
-        storage.writeStream(key, in);
+        storage.write(key, in);
         String fullPath = storage.getFullPath(pathKey);
 
         // Assert

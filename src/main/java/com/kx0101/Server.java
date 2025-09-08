@@ -2,6 +2,8 @@ package com.kx0101;
 
 import java.nio.file.Paths;
 
+import com.kx0101.P2P.RPC;
+
 public class Server {
     public ServerOptions options;
     public Storage storage;
@@ -15,8 +17,9 @@ public class Server {
         System.out.println("Server starting on " + options.listenAddr);
         this.options.transport.listenAndAccept();
 
-        synchronized(this) {
-            this.wait();
+        while (true) {
+            RPC rpc = this.options.transport.consume().take();
+            System.out.printf("%s: %s%n", rpc.from, new String(rpc.data));
         }
     }
 }

@@ -16,45 +16,6 @@ public class Storage {
     }
 
     /**
-     * Reads a file stream from storage
-     */
-    public InputStream readStream(String key) throws IOException {
-        PathKey pathKey = this.options.pathTransformFunc.apply(key);
-
-        Path parentDir = Paths.get(pathKey.pathName);
-        Path filePath = parentDir.resolve(pathKey.fileName);
-
-        if (!Files.exists(filePath)) {
-            throw new IOException("file not found: " + filePath);
-        }
-
-        return Files.newInputStream(filePath);
-    }
-
-    /**
-     * Writes the InputStream to storage
-     */
-    public void writeStream(String key, InputStream r) throws IOException {
-        PathKey pathKey = this.options.pathTransformFunc.apply(key);
-
-        Path parentDir = Paths.get(pathKey.pathName);
-        Files.createDirectories(parentDir);
-
-        Path filePath = parentDir.resolve(pathKey.fileName);
-
-        try (OutputStream output = Files.newOutputStream(filePath)) {
-            byte[] buffer = new byte[1024];
-            int read;
-
-            while ((read = r.read(buffer)) != -1) {
-                output.write(buffer, 0, read);
-
-                System.out.printf("written (%d) bytes to disk: %s\n", read, filePath);
-            }
-        }
-    }
-
-    /**
      * Checks if a file exists in the storage
      */
     public boolean exists(String key) throws IOException {
@@ -85,11 +46,58 @@ public class Storage {
         }
     }
 
+    public InputStream read(String key) throws IOException {
+        return this.readStream(key);
+    }
+
+    public void write(String key, InputStream r) throws IOException {
+        this.writeStream(key, r);
+    }
+
     /**
      * Returns the full path string for a given PathKey
      */
     public String getFullPath(PathKey pathKey) {
         return Paths.get(pathKey.pathName, pathKey.fileName).toString();
+    }
+
+    /**
+     * Reads a file stream from storage
+     */
+    private InputStream readStream(String key) throws IOException {
+        PathKey pathKey = this.options.pathTransformFunc.apply(key);
+
+        Path parentDir = Paths.get(pathKey.pathName);
+        Path filePath = parentDir.resolve(pathKey.fileName);
+
+        if (!Files.exists(filePath)) {
+            throw new IOException("file not found: " + filePath);
+        }
+
+        return Files.newInputStream(filePath);
+    }
+
+    /**
+     * Writes the InputStream to storage
+     */
+    private void writeStream(String key, InputStream r) throws IOException {
+        PathKey pathKey = this.options.pathTransformFunc.apply(key);
+
+        Path parentDir = Paths.get(pathKey.pathName);
+        Files.createDirectories(parentDir);
+
+        Path filePath = parentDir.resolve(pathKey.fileName);
+
+        try (OutputStream output = Files.newOutputStream(filePath)) {
+            byte[] buffer = new byte[1024];
+            int read;
+
+            while ((read = r.read(buffer)) != -1) {
+                output.write(buffer, 0, read);
+
+                System.out.printf("written (%d) bytes to disk: %s\n", read, filePath);
+            }
+        }
     }
 
     private boolean isDirEmpty(Path dir) throws IOException {

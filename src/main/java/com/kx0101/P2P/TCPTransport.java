@@ -1,6 +1,7 @@
 package com.kx0101.P2P;
 
 import java.net.ServerSocket;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
@@ -59,8 +60,6 @@ public class TCPTransport implements Transport {
                 rpc.from = conn.getRemoteSocketAddress();
                 rpcQueue.put(rpc);
 
-                System.out.printf("%s: %s", rpc.from, new String(rpc.data));
-
                 rpc = new RPC();
             }
         } catch (Exception ex) {
@@ -75,5 +74,10 @@ public class TCPTransport implements Transport {
     @Override
     public BlockingQueue<RPC> consume() {
         return rpcQueue;
+    }
+
+    @Override
+    public void close() throws IOException {
+        serverSocket.close();
     }
 }
