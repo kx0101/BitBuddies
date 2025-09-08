@@ -59,6 +59,8 @@ public class TCPTransport implements Transport {
                 rpc.from = conn.getRemoteSocketAddress();
                 rpcQueue.put(rpc);
 
+                System.out.printf("%s: %s", rpc.from, new String(rpc.data));
+
                 rpc = new RPC();
             }
         } catch (Exception ex) {

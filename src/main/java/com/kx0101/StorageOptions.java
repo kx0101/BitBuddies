@@ -11,15 +11,20 @@ public class StorageOptions {
     protected final Path baseDir;
     protected String root = "liakosnetwork";
 
-    public StorageOptions(Function<String, PathKey> pathTransformFunc, Path baseDir, String root) {
+    public StorageOptions(Path baseDir) {
         this.baseDir = baseDir;
-        this.pathTransformFunc = pathTransformFunc;
-        this.root = root;
+        this.pathTransformFunc = this::hashPathTransformFunc;
     }
 
     public StorageOptions(Path baseDir, String root) {
         this.baseDir = baseDir;
         this.pathTransformFunc = this::hashPathTransformFunc;
+        this.root = root;
+    }
+
+    public StorageOptions(Function<String, PathKey> pathTransformFunc, Path baseDir, String root) {
+        this.baseDir = baseDir;
+        this.pathTransformFunc = pathTransformFunc;
         this.root = root;
     }
 
