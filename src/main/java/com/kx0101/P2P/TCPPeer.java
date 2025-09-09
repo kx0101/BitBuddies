@@ -1,6 +1,8 @@
 package com.kx0101.P2P;
 
+import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketAddress;
 
 public class TCPPeer implements Peer {
     private final Socket socket;
@@ -17,6 +19,19 @@ public class TCPPeer implements Peer {
 
     public boolean isOutBound() {
         return outbound;
+    }
+
+    @Override
+    public void Send(byte[] data) throws Exception {
+        OutputStream out = this.socket.getOutputStream();
+
+        out.write(data);
+        out.flush();
+    }
+
+    @Override
+    public SocketAddress remoteAddr() {
+        return socket.getRemoteSocketAddress();
     }
 
     @Override

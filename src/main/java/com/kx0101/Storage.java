@@ -6,10 +6,15 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.file.DirectoryStream;
 
 public class Storage {
     private final StorageOptions options;
+    private static final Logger log = LoggerFactory.getLogger(Storage.class);
 
     public Storage(StorageOptions options) {
         this.options = options;
@@ -95,7 +100,7 @@ public class Storage {
             while ((read = r.read(buffer)) != -1) {
                 output.write(buffer, 0, read);
 
-                System.out.printf("written (%d) bytes to disk: %s\n", read, filePath);
+                log.debug("written ({} bytes) to disk: {}", read, filePath);
             }
         }
     }

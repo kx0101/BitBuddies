@@ -27,6 +27,7 @@ hs_err_pid*
 /build/
 /target/
 /out/
+.gradle/
 
 # IDE specific files
 # Eclipse
@@ -58,3 +59,9 @@ nbdist/
 
 # Windows
 Thumbs.db
+
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build

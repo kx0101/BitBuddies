@@ -9,12 +9,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class TCPTransport implements Transport {
     private final TCPTransportOptions options;
     private ServerSocket serverSocket;
     private final BlockingQueue<RPC> rpcQueue = new LinkedBlockingQueue<>();
 
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+    private static final Logger log = LoggerFactory.getLogger(TCPTransport.class);
 
     public TCPTransport(TCPTransportOptions options) {
         this.options = options;
@@ -38,7 +42,7 @@ public class TCPTransport implements Transport {
 
             this.handleConnection(socket, true);
         } catch (Exception ex) {
-            System.out.println("Error dialing " + addr + ": " + ex.getMessage());
+            log.error("Error dialing {}: {}", addr, ex.getMessage());
         }
     }
 
@@ -67,7 +71,7 @@ public class TCPTransport implements Transport {
     private void handleConnection(Socket conn, boolean outbound) {
         try {
             TCPPeer peer = new TCPPeer(conn, outbound);
-            System.out.println("Dialed and connected to " + conn.getRemoteSocketAddress());
+            log.info("New connection from " + conn.getRemoteSocketAddress());
 
             if (options.handshake != null) {
                 options.handshake.accept(peer);
@@ -88,7 +92,7 @@ public class TCPTransport implements Transport {
                 rpc = new RPC();
             }
         } catch (Exception ex) {
-            System.out.println("Closing peer connection: " + ex.getMessage());
+            log.info("Closing peer connection: " + ex.getMessage());
             try {
                 conn.close();
             } catch (Exception ignored) {
