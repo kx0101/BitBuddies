@@ -10,5 +10,5 @@ public interface Transport {
 
     void close() throws IOException;
 
-    void Dial(String addr);
+    void dial(String addr);
 }

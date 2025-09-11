@@ -11,4 +11,4 @@ plugins {
 }
 
 rootProject.name = "BitBuddies"
-include("app")
+include("app", "test-client")

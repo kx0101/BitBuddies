@@ -1,13 +1,20 @@
 package com.kx0101.P2P;
 
 import java.net.ServerSocket;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +39,7 @@ public class TCPTransport implements Transport {
     }
 
     @Override
-    public void Dial(String addr) {
+    public void dial(String addr) {
         String[] parts = addr.split(":");
         String host = parts[0];
         int port = Integer.parseInt(parts[1]);
@@ -82,21 +89,57 @@ public class TCPTransport implements Transport {
             }
 
             InputStream in = conn.getInputStream();
-            RPC rpc = new RPC();
 
-            while (true) {
-                options.decoder.decode(in, rpc);
-                rpc.from = conn.getRemoteSocketAddress();
+            while (!conn.isClosed()) {
+                RPC rpc = new RPC();
+                this.options.decoder.decode(in, rpc);
+
+                rpc.from = peer.getSocket().getRemoteSocketAddress().toString();
+
+                if (rpc.isStream()) {
+                    peer.startStream();
+
+                    rpc.stream = in;
+                    rpcQueue.put(rpc);
+
+                    peer.waitForStreamEnd();
+
+                    continue;
+                }
+
                 rpcQueue.put(rpc);
-
-                rpc = new RPC();
             }
         } catch (Exception ex) {
-            log.info("Closing peer connection: " + ex.getMessage());
+            log.info("Closing peer connection: " + ex);
             try {
                 conn.close();
             } catch (Exception ignored) {
             }
         }
+    }
+
+    public void authHandshake(Peer peer, SecretKey SECRET_KEY) throws Exception {
+        DataInputStream in = new DataInputStream(peer.getSocket().getInputStream());
+        DataOutputStream out = new DataOutputStream(peer.getSocket().getOutputStream());
+
+        byte[] nonce = new byte[16];
+        new SecureRandom().nextBytes(nonce);
+        out.writeInt(nonce.length);
+        out.write(nonce);
+        out.flush();
+
+        int hmacLen = in.readInt();
+        byte[] clientHmac = new byte[hmacLen];
+        in.readFully(clientHmac);
+
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(SECRET_KEY);
+        byte[] expectedHmac = mac.doFinal(nonce);
+
+        if (!Arrays.equals(clientHmac, expectedHmac)) {
+            throw new RuntimeException("Invalid handshake: client authentication failed");
+        }
+
+        log.info("Handshake successful with peer {}", peer.getSocket().getRemoteSocketAddress());
     }
 }

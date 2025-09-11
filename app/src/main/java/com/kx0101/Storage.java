@@ -1,5 +1,6 @@
 package com.kx0101;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -59,11 +60,32 @@ public class Storage {
         this.writeStream(key, r);
     }
 
+    public void write(String key, byte[] data) throws IOException {
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            this.write(key, in);
+        }
+    }
+
+    public OutputStream openStream(String key) throws IOException {
+        Path path = Paths.get(getPath(key));
+        Files.createDirectories(path.getParent());
+
+        return Files.newOutputStream(path);
+    }
+
     /**
      * Returns the full path string for a given PathKey
      */
     public String getFullPath(PathKey pathKey) {
         return Paths.get(pathKey.pathName, pathKey.fileName).toString();
+    }
+
+    /**
+     * Returns the full path string for a given key
+     */
+    public String getPath(String key) {
+        PathKey pathKey = this.options.pathTransformFunc.apply(key);
+        return getFullPath(pathKey);
     }
 
     /**
